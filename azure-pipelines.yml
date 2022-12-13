@@ -27,10 +27,12 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
           $(tag)
-    - task: ECRPushImage@1
+    - task: AWSShellScript@1
       inputs:
-       awsCredentials: 'aws'
-       regionName: 'ap-south-1'
-       imageSource: 'imagename'
-       sourceImageName: 'test'
-       repositoryName: 'in-dev-platform'
+        awsCredentials: 'aws'
+        regionName: 'ap-south-1'
+        scriptType: 'inline'
+        inlineScript: |
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 079888673860.dkr.ecr.ap-south-1.amazonaws.com
+          docker tag in-dev-platform:latest 079888673860.dkr.ecr.ap-south-1.amazonaws.com/in-dev-platform:latest
+          docker push 079888673860.dkr.ecr.ap-south-1.amazonaws.com/in-dev-platform:latest
